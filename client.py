@@ -2,7 +2,9 @@ import socket
 import threading
 import os
 
-nickname = input("Choose your nickname: ")
+server = input("Enter server (press Enter to use default): ") or "127.0.1.1"
+port = int(input("Enter port (press Enter to use default): ") or "7777")
+nickname = input("Enter nickname: ")
 
 client = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 client.connect(('127.0.1.1', 7777))
@@ -26,5 +28,5 @@ def send_msg():
 listen_thread = threading.Thread(target=listen_server)
 listen_thread.start()
 
-send_thread = threading.Thread(target=send_msg)  # ToDo: may be thread is not required
+send_thread = threading.Thread(target=send_msg)
 send_thread.start()

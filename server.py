@@ -7,7 +7,7 @@ port = 7777
 server = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 server.bind((host, port))
 server.listen()
-print(f"[ Listening for connections on {host}:{port}... ]")
+print(f"[ Listening for connections at {host}:{port}... ]")
 
 clients = []
 nicknames = []
