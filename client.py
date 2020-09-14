@@ -9,18 +9,19 @@ nickname = input("Enter nickname: ")
 client = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 client.connect((server, port))
 os.system('cls' if os.name == 'nt' else 'clear')
-
+packet_size = 1024
 shutdown = False
 
 
 def listen_server():
     client.send(nickname.encode('utf-8'))
-    while True:
-        received_message = client.recv(1024).decode('utf-8')
+    connected = True
+    while connected:
+        received_message = client.recv(packet_size).decode('utf-8')
         if received_message:
             print(received_message)
-
-
+        if received_message == 'Client with that name is connected already.Disconnecting.':
+           connected = False
 if __name__ == '__main__':
     listen_thread = Thread(target=listen_server, daemon=True)
     listen_thread.start()
