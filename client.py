@@ -21,7 +21,9 @@ def listen_server():
         if received_message:
             print(received_message)
         if received_message == 'Client with that name is connected already.Disconnecting.':
-           connected = False
+            connected = False
+
+
 if __name__ == '__main__':
     listen_thread = Thread(target=listen_server, daemon=True)
     listen_thread.start()
@@ -33,7 +35,6 @@ if __name__ == '__main__':
             client.send(send_message.encode('utf-8'))
         except KeyboardInterrupt:
             shutdown = True
-            client.send(f"{nickname} exited from server".encode('utf-8'))
         except BrokenPipeError:
             shutdown = True
             print("Server is not available!")
