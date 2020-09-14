@@ -13,7 +13,7 @@ print(f"Listening for connections at {host}:{port}...")
 clients = []
 nicknames = []
 server_shutdown = False
-
+packet_size = 1024
 
 def broadcast(message):
     """Send message to all connected users"""
@@ -25,7 +25,7 @@ def listen_client(client, nickname):
     """Handle client messages, process commands, broadcast messages"""
     connected = True
     while connected:
-        message = client.recv(1024)
+        message = client.recv(packet_size)
 
         if message.decode('utf-8') == f"{nickname} exited from server":
             nicknames.remove(nickname)
@@ -42,14 +42,17 @@ if __name__ == '__main__':
     while not server_shutdown:
         try:
             client, address = server.accept()
-            nickname = client.recv(1024).decode('utf-8')
+            nickname = client.recv(packet_size).decode('utf-8')
             time_now = time.strftime("%H.%M.%S", time.localtime())
-            print(f"[{time_now}] Accepted new connection from {address}, username: {nickname} ")
-            nicknames.append(nickname)
-            clients.append(client)
-            client.send('Welcome to server!'.encode('utf-8'))
-            thread = Thread(target=listen_client, args=(client, nickname,), daemon=True)
-            thread.start()
+            if nickname not in nicknames:
+                print(f"[{time_now}] Accepted new connection from {address}, username: {nickname} ")
+                nicknames.append(nickname)
+                clients.append(client)
+                client.send('Welcome to server!'.encode('utf-8'))
+                thread = Thread(target=listen_client, args=(client, nickname,), daemon=True)
+                thread.start()
+            else:
+                client.send('Client with that name is connected already.Disconnecting.'.encode('utf-8'))
         except KeyboardInterrupt:
             server_shutdown = True
             print('Server shut down!')
