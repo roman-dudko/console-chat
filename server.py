@@ -15,27 +15,29 @@ nicknames = []
 server_shutdown = False
 packet_size = 1024
 
+
 def broadcast(message):
     """Send message to all connected users"""
+    time_now = time.strftime("%H.%M.%S", time.localtime())
+    message_formatted = f"[{time_now}] {message.decode('utf-8')}"
+    print(message_formatted)
+
     for client in clients:
-        client.send(message)
+        client.send(message_formatted.encode('utf-8'))
 
 
 def listen_client(client, nickname):
     """Handle client messages, process commands, broadcast messages"""
     connected = True
     while connected:
-        message = client.recv(packet_size)
-
-        if message.decode('utf-8') == f"{nickname} exited from server":
+        try:
+            message = client.recv(packet_size)
+            broadcast(message)
+        except BrokenPipeError:
             nicknames.remove(nickname)
             clients.remove(client)
-            print(message.decode('utf-8'))
+            broadcast(f"{nickname} exited from server".encode('utf-8'))
             connected = False
-        time_now = time.strftime("%H.%M.%S", time.localtime())
-        message_formatted = f"[{time_now}] {message.decode('utf-8')}"
-        print(message_formatted)
-        broadcast(message_formatted.encode('utf-8'))
 
 
 if __name__ == '__main__':
@@ -43,9 +45,8 @@ if __name__ == '__main__':
         try:
             client, address = server.accept()
             nickname = client.recv(packet_size).decode('utf-8')
-            time_now = time.strftime("%H.%M.%S", time.localtime())
             if nickname not in nicknames:
-                print(f"[{time_now}] Accepted new connection from {address}, username: {nickname} ")
+                broadcast(f"Accepted new connection; address: {address}, username: {nickname} ".encode('utf-8'))
                 nicknames.append(nickname)
                 clients.append(client)
                 client.send('Welcome to server!'.encode('utf-8'))
@@ -55,5 +56,4 @@ if __name__ == '__main__':
                 client.send('Client with that name is connected already.Disconnecting.'.encode('utf-8'))
         except KeyboardInterrupt:
             server_shutdown = True
-            print('Server shut down!')
             broadcast('Server shut down!'.encode('utf-8'))
