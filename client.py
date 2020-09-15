@@ -17,10 +17,12 @@ def listen_server():
     client.send(nickname.encode('utf-8'))
     connected = True
     while connected:
-        received_message = client.recv(packet_size).decode('utf-8')
-        if received_message:
-            print(received_message)
-        if received_message == 'Client with that name is connected already.Disconnecting.':
+        try:
+            received_message = client.recv(packet_size).decode('utf-8')
+            if received_message:
+                print(received_message)
+        except BrokenPipeError:
+            print("Server is not available!")
             connected = False
 
 
