@@ -25,23 +25,19 @@ class CommandsHandler():
 
     def cmd_rock(self, user):
         chois = 'rock'
-        if user.pc_select == chois:
-            return f"You both select: {chois}"
         return self.game_action(user, chois)
 
     def cmd_paper(self, user):
         chois = 'paper'
-        if user.pc_select == chois:
-            return f"You both select: {chois}"
         return self.game_action(user, chois)
 
     def cmd_scissors(self, user):
         chois = 'scissors'
-        if user.pc_select == chois:
-            return f"You both select: {chois}"
         return self.game_action(user, chois)
 
     def game_action(self, user, chois):
+        if user.pc_select == chois:
+            return f"You both select: {chois}"
         msg = f"Computer select: {user.pc_select}. You win!" if self.options[self.options.index(chois) - 1] != user.pc_select else f"Computer select: {user.pc_select}. You lose!"
         if not user.pc_select:
             msg = "Please start a game by sending:/rock-paper-scissors"
@@ -51,4 +47,3 @@ class CommandsHandler():
     def cmd_time(self, user):
         return str(datetime.datetime.now())
 
-    
