@@ -7,6 +7,7 @@ class Client(Socket):
 
     def __listen_server(self):
         connected = True
+
         while connected:
             received_message = self.connection.recv(self.packet_size).decode('utf-8')
             if received_message:
@@ -18,6 +19,7 @@ class Client(Socket):
     def __connect(self):
         connected = False
         os.system("cls" if os.name == "nt" else "clear")
+
         while not connected:
             try:
                 server = input("Enter server (press Enter to use default): ") or self.host
