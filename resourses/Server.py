@@ -6,7 +6,14 @@ from resourses.User import User
 class Server(Socket):
     users = []
 
+    def handle_commands(self, command):
+        if command == "/whois":
+            return f"Online users: {str([u.nickname for u in self.users])}"
+        else:
+            return "incorrect command"
+
     def __broadcast(self, message):
+        print(message.decode("utf-8"))
         for user in self.users:
             user.post_message(message)
 
@@ -14,8 +21,11 @@ class Server(Socket):
         connected = True
 
         while connected:
-            message = user.sock.recv(self.packet_size).decode("utf-8")
-            if message:
+            message = user.get_message(self.packet_size).decode("utf-8")
+            if message.startswith('/'):
+                response = self.handle_commands(message)
+                user.post_message(response.encode("utf-8"))
+            elif message:
                 self.__broadcast(f"{user.nickname}: {message}".encode("utf-8"))
             else:
                 self.users.remove(user)
