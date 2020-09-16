@@ -5,6 +5,8 @@ class User:
         self.address = address
         self.nickname = nickname
         self.connected = True
+        self.lastCommand = ''
+        self.pc_select = ''
 
     def post_message(self, message):
         self.sock.send(message)

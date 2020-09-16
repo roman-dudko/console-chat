@@ -1,14 +1,16 @@
 from resourses.Socket import Socket
 from threading import Thread
 from resourses.User import User
+from resourses.CommandsHandler import CommandsHandler
 
 
 class Server(Socket):
     users = []
 
-    def handle_commands(self, command):
-        if command == "/whois":
-            return f"Online users: {str([u.nickname for u in self.users])}"
+    def handle_commands(self, command, user):
+        command = 'cmd_' + command[1:].replace('-','_')
+        if hasattr(self.cmdHandler, command):
+            return getattr(self.cmdHandler, command)(user)
         else:
             return "incorrect command"
 
@@ -23,7 +25,8 @@ class Server(Socket):
         while connected:
             message = user.get_message(self.packet_size).decode("utf-8")
             if message.startswith('/'):
-                response = self.handle_commands(message)
+                user.lastCommand = message
+                response = self.handle_commands(message, user)
                 user.post_message(response.encode("utf-8"))
             elif message:
                 self.__broadcast(f"{user.nickname}: {message}".encode("utf-8"))
@@ -60,7 +63,7 @@ class Server(Socket):
 
     def run(self):
         started = False
-
+        self.cmdHandler = CommandsHandler(self)
         while not started:
             try:
                 port = int(input("Enter port (press Enter to use default): ") or self.port)
