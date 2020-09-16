@@ -17,10 +17,24 @@ class Server:
         for user in self.users:
             user.post_message(message)
 
+    def cmd_whois(self):
+        return str([u.nickname for u in self.users])
+
+
     def listen_user(self, user):
         connected = True
         while connected:
             message = user.sock.recv(self.packet_size)
+            # If Command
+            command = message.decode('utf-8').split(':')[1]
+            if command.startswith(' /'):
+                cmd = 'cmd_' + command[2:]
+                if hasattr(self, cmd):
+                    cmd = getattr(self,cmd)
+                    user.post_message(cmd().encode('utf-8'))
+                else:
+                    self.broadcast('Unknown сommand')
+                continue
             if message:
                 self.broadcast(message)
             else:
@@ -36,7 +50,7 @@ class Server:
                 accepted = False
                 while not accepted:
                     data = sock.recv(self.packet_size).decode('utf-8')
-                    if any(user.nickname == nickname for user in self.users):
+                    if any(user.nickname == data for user in self.users):
                         sock.send("This name is not available!".encode('utf-8'))
                     else:
                         nickname = data
