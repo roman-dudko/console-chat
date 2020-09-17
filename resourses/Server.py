@@ -8,7 +8,7 @@ class Server(Socket):
     users = []
 
     def handle_commands(self, command, user):
-        command = 'cmd_' + command[1:].replace('-','_')
+        command = 'cmd_' + command[1:]
         if hasattr(self.cmdHandler, command):
             return getattr(self.cmdHandler, command)(user)
         else:
@@ -25,7 +25,7 @@ class Server(Socket):
         while connected:
             message = user.get_message(self.packet_size).decode("utf-8")
             if message.startswith('/'):
-                user.lastCommand = message
+                user.post_message(message.encode("utf-8"))
                 response = self.handle_commands(message, user)
                 user.post_message(response.encode("utf-8"))
             elif message:
