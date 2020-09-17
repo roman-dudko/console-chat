@@ -1,7 +1,6 @@
 from resourses import Server
-from resourses import User
 import random
-import time, datetime
+import datetime
 
 
 class CommandsHandler():
@@ -36,7 +35,7 @@ class CommandsHandler():
         choice = 'scissors'
         return self.game_action(user, choice)
 
-    def cmd_stop_game(self,user):
+    def cmd_stop_game(self, user):
         user.pc_select = ""
         return "Well played! Have a good day!"
 
@@ -57,6 +56,6 @@ class CommandsHandler():
         msg += f" One more time?\n{self.invite}"
         return msg
 
-    def cmd_time(self, user):
+    def cmd_time(self):
         return str(datetime.datetime.now())
 
