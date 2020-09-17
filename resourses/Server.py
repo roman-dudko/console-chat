@@ -15,7 +15,7 @@ class Server(Socket):
             return "\nincorrect command"
 
     def __broadcast(self, message):
-        print(message.decode("utf-8"))
+        print(message)
         for user in self.users:
             user.post_message(message)
 
@@ -25,14 +25,14 @@ class Server(Socket):
         while connected:
             message = user.get_message(self.packet_size).decode("utf-8")
             if message.startswith('/'):
-                user.post_message(message.encode("utf-8"))
+                user.post_message(message)
                 response = self.handle_commands(message, user)
-                user.post_message(response.encode("utf-8"))
+                user.post_message(response)
             elif message:
-                self.__broadcast(f"{user.nickname}: {message}".encode("utf-8"))
+                self.__broadcast(f"{user.nickname}: {message}")
             else:
                 self.users.remove(user)
-                self.__broadcast(f"{user.nickname} exited from server".encode("utf-8"))
+                self.__broadcast(f"{user.nickname} exited from server")
                 connected = False
 
     def __accept_connections(self):
@@ -49,7 +49,7 @@ class Server(Socket):
                     if any(user.nickname == nick for user in self.users):
                         sock.send("This name is not available! Please enter another one:".encode("utf-8"))
                     else:
-                        self.__broadcast(f"{nick} connected to the server!".encode("utf-8"))
+                        self.__broadcast(f"{nick} connected to the server!")
                         sock.send(f"{nick}! Welcome to the server!".encode("utf-8"))
                         accepted = True
 
@@ -59,7 +59,7 @@ class Server(Socket):
                 thread.start()
             except KeyboardInterrupt:
                 server_shutdown = True
-                self.__broadcast("Server shut down!".encode("utf-8"))
+                self.__broadcast("Server shut down!")
 
     def run(self):
         started = False
