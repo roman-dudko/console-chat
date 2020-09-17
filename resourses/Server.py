@@ -12,7 +12,7 @@ class Server(Socket):
         if hasattr(self.cmdHandler, command):
             return getattr(self.cmdHandler, command)(user)
         else:
-            return "incorrect command"
+            return "\nincorrect command"
 
     def __broadcast(self, message):
         print(message.decode("utf-8"))
