@@ -20,7 +20,7 @@ class CommandsHandler():
 
     def cmd_game(self, user):
         user.pc_select = random.choice(self.options)
-        print(user.pc_select)
+        print(f"Game started. Server choice: {user.pc_select}")
         return f"Let's play! {self.invite}"
 
     def cmd_rock(self, user):

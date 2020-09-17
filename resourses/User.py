@@ -8,7 +8,7 @@ class User:
         self.pc_select = ''
 
     def post_message(self, message):
-        self.sock.send(message)
+        self.sock.send(message.encode("utf-8"))
 
     def get_message(self, packet_size):
         return self.sock.recv(packet_size)
