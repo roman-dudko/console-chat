@@ -5,7 +5,7 @@ import datetime
 class CommandsHandler:
 
     @classmethod
-    def help(cls, obj, user):
+    def help(cls, *, user):
         user.post_message("List of available commands:\n"
                           "/whois - show list of online users\n"
                           "/count - show number of online users\n"
@@ -21,11 +21,11 @@ class CommandsHandler:
         user.post_message(f"Online users number: {len(obj.users)}")
 
     @classmethod
-    def time(cls, obj, user):
+    def time(cls, *, user):
         user.post_message(str(datetime.datetime.now().strftime('Current time: %H:%M')))
 
     @classmethod
-    def game(cls, obj, user):
+    def game(cls, *, user):
         user.post_message(f"Let's play! To stop the game type 'stop'. ")
         option = ["scissors", "paper", "rock"]
 
