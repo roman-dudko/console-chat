@@ -1,61 +1,49 @@
-from resourses import Server
 import random
 import datetime
 
 
-class CommandsHandler():
+class CommandsHandler:
 
-    options = ["scissors", "paper", "rock"]
-    invite = "Please enter your choice: '/scissors', '/paper' or '/rock':"
+    @classmethod
+    def help(cls, obj, user):
+        user.post_message("List of available commands:\n"
+                          "/whois - show list of online users\n"
+                          "/count - show number of online users\n"
+                          "/time - show current time\n"
+                          "/game - 'paper-rock-scissors game'")
 
-    def __init__(self,server):
-        assert(isinstance(server, Server.Server))
-        self.server = server
+    @classmethod
+    def whois(cls, obj, user):
+        user.post_message(f"Current online users: {str([u.nickname for u in obj.users])}")
 
-    def cmd_whois(self, user):
-        return f"Current online users: {str([u.nickname for u in self.server.users])}"
+    @classmethod
+    def count(cls, obj, user):
+        user.post_message(f"Online users number: {len(obj.users)}")
 
-    def cmd_count(self, user):
-        return f"Online users number: {len(self.server.users)}"
+    @classmethod
+    def time(cls, obj, user):
+        user.post_message(str(datetime.datetime.now().strftime('Current time: %H:%M')))
 
-    def cmd_game(self, user):
-        user.pc_select = random.choice(self.options)
-        print(f"Game started. Server choice: {user.pc_select}")
-        return f"Let's play! {self.invite}"
+    @classmethod
+    def game(cls, obj, user):
+        user.post_message(f"Let's play! To stop the game type 'stop'. ")
+        option = ["scissors", "paper", "rock"]
 
-    def cmd_rock(self, user):
-        choice = 'rock'
-        return self.game_action(user, choice)
-
-    def cmd_paper(self, user):
-        choice = 'paper'
-        return self.game_action(user, choice)
-
-    def cmd_scissors(self, user):
-        choice = 'scissors'
-        return self.game_action(user, choice)
-
-    def cmd_stop_game(self, user):
-        user.pc_select = ""
-        return "Well played! Have a good day!"
-
-    def game_action(self, user, choice):
-        if not user.pc_select:
-            user.pc_select = random.choice(self.options)
-            msg = f"Ooops. Server not ready.{self.invite}"
-            return msg
-
-        if user.pc_select == choice:
-            msg = f"We both select: {choice}."
-        else:
-            msg = f"Computer select: {user.pc_select}. You win!" if self.options[self.options.index(choice) - 1] != \
-                                                                user.pc_select else f"Computer select: " \
-                                                                                    f"{user.pc_select}. You lose! " \
-                                                                                    f"Better luck next time!"
-        user.pc_select = random.choice(self.options)
-        msg += f" One more time?\n{self.invite}"
-        return msg
-
-    def cmd_time(self):
-        return str(datetime.datetime.now())
-
+        while True:
+            user.post_message(f"\nPlease enter your choice: 'scissors', 'paper' or 'rock':")
+            user_select = user.get_message(1024)
+            if user_select in ("scissors", "paper", "rock"):
+                pc_select = random.choice(option)
+                if pc_select == user_select:
+                    user.post_message(f"We both select {pc_select}. Let's try again!")
+                elif option[option.index(user_select) - 1] != pc_select:
+                    user.post_message(f"Your {user_select} vs my {pc_select}. "
+                                      f"You win! One more time?")
+                else:
+                    user.post_message(f"Your {user_select} vs my {pc_select}. "
+                                      f"You lose! Better luck next time!")
+            elif user_select == "stop":
+                user.post_message(f"Well played! Have a good day!")
+                break
+            else:
+                user.post_message(f"Incorrect choice. You can stop game by typing 'stop'.\n")

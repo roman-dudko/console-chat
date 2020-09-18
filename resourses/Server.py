@@ -7,35 +7,32 @@ from resourses.CommandsHandler import CommandsHandler
 class Server(Socket):
     users = []
 
-    def handle_commands(self, command, user):
-        command = 'cmd_' + command[1:]
-        if hasattr(self.cmdHandler, command):
-            return getattr(self.cmdHandler, command)(user)
-        else:
-            return "\nincorrect command"
-
-    def __broadcast(self, message):
+    def _broadcast(self, message):
         print(message)
         for user in self.users:
             user.post_message(message)
 
-    def __listen_user(self, user):
-        connected = True
+    def _listen_user(self, user):
+        try:
 
-        while connected:
-            message = user.get_message(self.packet_size).decode("utf-8")
-            if message.startswith('/'):
-                user.post_message(message)
-                response = self.handle_commands(message, user)
-                user.post_message(response)
-            elif message:
-                self.__broadcast(f"{user.nickname}: {message}")
-            else:
-                self.users.remove(user)
-                self.__broadcast(f"{user.nickname} exited from server")
-                connected = False
+            while True:
+                message = user.get_message(self.packet_size)
+                if message.startswith('/'):
+                    try:
+                        getattr(CommandsHandler, message[1:])(self, user)
+                    except AttributeError:
+                        user.post_message("Incorrect command")
+                elif message:
+                    self._broadcast(f"{user.nickname}: {message}")
+                else:
+                    raise BrokenPipeError("Connection lost")
 
-    def __accept_connections(self):
+        except BrokenPipeError:
+            user.sock.close()
+            self.users.remove(user)
+            self._broadcast(f"{user.nickname} exited from server")
+
+    def _accept_connections(self):
         server_shutdown = False
 
         while not server_shutdown:
@@ -44,26 +41,30 @@ class Server(Socket):
                 accepted = False
                 nick = None
                 sock.send("Connected. please select nickname:".encode("utf-8"))
+
                 while not accepted:
                     nick = sock.recv(self.packet_size).decode("utf-8")
                     if any(user.nickname == nick for user in self.users):
                         sock.send("This name is not available! Please enter another one:".encode("utf-8"))
                     else:
-                        self.__broadcast(f"{nick} connected to the server!")
+                        self._broadcast(f"{nick} connected to the server!")
                         sock.send(f"{nick}! Welcome to the server!".encode("utf-8"))
                         accepted = True
 
                 user = User(sock, address, nick)
                 self.users.append(user)
-                thread = Thread(target=self.__listen_user, args=(user,), daemon=True)
+                thread = Thread(target=self._listen_user, args=(user,), daemon=True)
                 thread.start()
             except KeyboardInterrupt:
                 server_shutdown = True
-                self.__broadcast("Server shut down!")
+                self._broadcast("Server shut down!")
+                for user in self.users:
+                    user.sock.close()
+                self.connection.close()
 
     def run(self):
         started = False
-        self.cmdHandler = CommandsHandler(self)
+
         while not started:
             try:
                 port = int(input("Enter port (press Enter to use default): ") or self.port)
@@ -75,4 +76,4 @@ class Server(Socket):
 
         self.connection.listen()
         print(f"Listening for connections at {self.host}:{self.port}...")
-        self.__accept_connections()
+        self._accept_connections()
