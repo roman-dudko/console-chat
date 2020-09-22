@@ -48,7 +48,7 @@ class Server(Socket):
                         sock.send("This name is not available! Please enter another one:".encode("utf-8"))
                     else:
                         self._broadcast(f"{nick} connected to the server!")
-                        sock.send(f"{nick}! Welcome to the server!".encode("utf-8"))
+                        sock.send(f"{nick}! Welcome to the server! Type /help to see available commands".encode("utf-8"))
                         accepted = True
 
                 user = User(sock, address, nick)
