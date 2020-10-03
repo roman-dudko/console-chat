@@ -19,7 +19,7 @@ class Server(Socket):
                 message = user.get_message(self.packet_size)
                 if message.startswith('/'):
                     try:
-                        getattr(CommandsHandler, message[1:])(self, user)
+                        getattr(CommandsHandler, message[1:])(user=user, obj=self)
                     except AttributeError:
                         user.post_message("Incorrect command")
                 elif message:
@@ -48,7 +48,7 @@ class Server(Socket):
                         sock.send("This name is not available! Please enter another one:".encode("utf-8"))
                     else:
                         self._broadcast(f"{nick} connected to the server!")
-                        sock.send(f"{nick}! Welcome to the server! Type /help to see available commands".encode("utf-8"))
+                        sock.send(f"{nick}! Welcome to the server! Type /help to see commands".encode("utf-8"))
                         accepted = True
 
                 user = User(sock, address, nick)
