@@ -1,11 +1,11 @@
-from resourses.Socket import Socket
 from threading import Thread
+from resourses.Socket import Socket
 from resourses.User import User
 from resourses.CommandsHandler import CommandsHandler
 
 
 class Server(Socket):
-    users = []
+    users: list = []
 
     def _broadcast(self, message):
         print(message)
