@@ -1,3 +1,4 @@
+import logging
 from threading import Thread
 from resourses.Socket import Socket
 from resourses.User import User
@@ -6,9 +7,10 @@ from resourses.CommandsHandler import CommandsHandler
 
 class Server(Socket):
     users: list = []
+    logging.basicConfig(format='[%(asctime)s] %(levelname)s: %(message)s', level=logging.INFO)
 
     def _broadcast(self, message):
-        print(message)
+        logging.info(message)
         for user in self.users:
             user.post_message(message)
 
@@ -71,9 +73,11 @@ class Server(Socket):
                 self.connection.bind((self.host, port))
                 self.port = port
                 started = True
-            except Exception as e:
-                print(f"Please select another port. {e}")
+            except PermissionError:
+                logging.error("This port is already reserved.")
+            except OverflowError:
+                logging.error("Out of range. Port must be 0-65535.")
 
         self.connection.listen()
-        print(f"Listening for connections at {self.host}:{self.port}...")
+        logging.info(f"Listening for connections at {self.host}:{self.port}...")
         self._accept_connections()
